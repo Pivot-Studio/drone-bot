@@ -6,9 +6,14 @@ import (
 )
 
 func UseDronebotRouter(r *gin.Engine) {
-	repoapi := r.Group("api")
+	botapi := r.Group("/api")
 	{
-		repoapi.PUT("repo", api.RepoPutHandler)
-		//repoapi.GET("repo", api.RepoGetHandler)
+		botrepo := botapi.Group("/repo")
+		{
+			botrepo.PUT("", api.RepoPutHandler)
+			botrepo.GET("", api.RepoGetHandler)
+			botrepo.DELETE("/:ID", api.RepoDeleteHandler)
+		}
+		botapi.POST("/bot", api.PluginHandler)
 	}
 }
