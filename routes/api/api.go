@@ -115,6 +115,12 @@ func PluginHandler(ctx *gin.Context) {
 		return
 	}
 
+	ctx.JSON(http.StatusOK, gin.H{
+		"repourl-applied": plugin_message.Repourl,
+		"bot_hook-get":    bot_hook,
+		"message-send":    plugin_message.Message,
+	})
+	return
 }
 
 func PostString2bot(message string, bot_hook string) string {
