@@ -134,9 +134,7 @@ func PostString2bot(message string, bot_hook string) string {
 
 	var jsonStr = []byte(requestBody)
 
-	//url := "https://open.feishu.cn/open-apis/bot/v2/hook/f65de4e6-d14d-4a75-9c2e-bc5c17c29da9"
-
-	req, err := http.NewRequest("POST", bot_hook, bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", bot_hook, bytes.NewBuffer(jsonStr))
 
 	req.Header.Set("Content-Type", "application/json")
 
