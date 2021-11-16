@@ -11,7 +11,7 @@ func UseDronebotRouter(r *gin.Engine) {
 		botrepo := botapi.Group("/repo")
 		{
 			botrepo.PUT("", api.RepoPutHandler)
-			botrepo.GET("", api.RepoGetHandler)
+			botrepo.GET("/:ID", api.RepoGetHandler)
 			botrepo.DELETE("/:ID", api.RepoDeleteHandler)
 		}
 		botapi.POST("/bot", api.PluginHandler)
