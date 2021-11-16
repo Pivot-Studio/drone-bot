@@ -56,8 +56,17 @@ func RepoPutHandler(ctx *gin.Context) {
 }
 
 func RepoGetHandler(ctx *gin.Context) {
+	id_string := ctx.Param("ID")
+
+	ends := []string{"kv-0.kv-hs.kvrf.svc.cluster.local:8888", "kv-1.kv-hs.kvrf.svc.cluster.local:8888", "kv-2.kv-hs.kvrf.svc.cluster.local:8888"}
+	rpcends := raft.MakeRPCEnds(ends)
+	client := kvraft.MakeClerk(rpcends)
+
+	id, _ := strconv.Atoi(id_string)
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "200",
+		"id":      id,
+		"repourl": client.Get(id_string),
+		"bothook": client.Get(client.Get(id_string)),
 	})
 	return
 }

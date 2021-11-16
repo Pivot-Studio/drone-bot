@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-bot
+  namespace: drone-bot
+spec:
+  selector:
+    matchLabels:
+      app: drone-bot
+  template:
+    metadata:
+      labels:
+        app: drone-bot
+    spec:
+      containers:
+      - name: drone-bot
+        image: registry.cn-beijing.aliyuncs.com/husterdjx/drone-bot:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: drone-bot
+  name: drone-bot
+  labels:
+    app: drone-bot
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http
+  selector:
+    app: drone-bot
