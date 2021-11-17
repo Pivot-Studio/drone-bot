@@ -21,7 +21,10 @@ type Message struct {
 
 type PluginMessage struct {
 	Repourl string `form:"repourl" binding:"required"`
+	Author  string `form:"author" binding:"required"`
+	Branch  string `form:"branch" binding:"required"`
 	Message string `form:"message" binding:"required"`
+	Githash string `form:"githash" binding:"required"`
 }
 
 func RepoPutHandler(ctx *gin.Context) {
@@ -110,7 +113,7 @@ func PluginHandler(ctx *gin.Context) {
 		return
 	}
 
-	if post_err := PostString2bot(plugin_message.Message, bot_hook); post_err != "" {
+	if post_err := PostString2bot(plugin_message.Repourl, plugin_message.Message, bot_hook, plugin_message.Author, plugin_message.Branch, plugin_message.Githash); post_err != "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "send request to bot error:" + post_err})
 		return
 	}
@@ -123,14 +126,40 @@ func PluginHandler(ctx *gin.Context) {
 	return
 }
 
-func PostString2bot(message string, bot_hook string) string {
+func PostString2bot(repourl string, message string, bot_hook string, author string, branch string, githash string) string {
 
-	requestBody := fmt.Sprintf(`{
-		"msg_type": "text",
-    	"content": {
-        	"text": "新的commit信息,%s"
+	requestBody := fmt.Sprintf(`
+		{
+			"msg_type": "post",
+			"content": {
+				"post": {
+					"zh_cn": {
+						"title": "新的commit信息",
+						"content": [
+							[{
+									"tag": "text",
+									"text": "commit author: %s "
+								},
+								{
+									"tag": "text",
+									"text": "commit branch: %s "
+								},
+								{
+									"tag": "text",
+									"text": "commit githash: %s "
+								},
+								{
+									"tag": "a",
+									"text": "仓库链接",
+									"href": "%s"
+								}
+							]
+						]
+					}
+				}
+			}
 		}
-	}`, message)
+	`, author, branch, githash, repourl)
 
 	var jsonStr = []byte(requestBody)
 
