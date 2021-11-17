@@ -139,12 +139,12 @@ func PostString2bot(repourl string, message string, bot_hook string, author stri
 							[{
 									"tag": "text",
 									"text": "commit author: %s "
-								},
-								{
+							}],
+							[{
 									"tag": "text",
 									"text": "commit branch: %s "
-								},
-								{
+							}],
+							[{
 									"tag": "text",
 									"text": "commit githash: %s "
 							}],
