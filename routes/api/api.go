@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/Chronostasys/raft"
