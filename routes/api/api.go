@@ -119,40 +119,28 @@ func PluginHandler(ctx *gin.Context) {
 func PostString2bot(bot_hook string) string {
 
 	requestBody := fmt.Sprintf(`
-		{
-			"msg_type": "post",
-			"content": {
-				"post": {
-					"zh_cn": {
-						"title": "%s",
-						"content": [
-							[{
-									"tag": "text",
-									"text": "commit信息: %s "
-							}],
-							[{
-									"tag": "text",
-									"text": "触发者: %s "
-							}],
-							[{
-									"tag": "text",
-									"text": "分支: %s "
-							}],
-							[{
-									"tag": "text",
-									"text": "Githash: %s "
-							}],
-							[{
-									"tag": "a",
-									"text": "仓库链接",
-									"href": "%s"
-							}]
-						]
-					}
-				}
+	{
+		"config": {
+		  "wide_screen_mode": true
+		},
+		"elements": [
+		  {
+			"tag": "div",
+			"text": {
+			  "content": "**commit信息**:%s\n**触发者**:%s\n**分支**:%s\n**Githash**:%s\n[仓库链接](%s)",
+			  "tag": "lark_md"
 			}
+		  }
+		],
+		"header": {
+		  "template": "turquoise",
+		  "title": {
+			"content": "%s",
+			"tag": "plain_text"
+		  }
 		}
-	`, plugin_title, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl)
+	  }
+	`, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl, plugin_title)
 
 	var jsonStr = []byte(requestBody)
 
