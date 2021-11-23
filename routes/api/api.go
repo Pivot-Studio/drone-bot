@@ -123,24 +123,26 @@ func PostString2bot(bot_hook string) string {
 		"config": {
 		  "wide_screen_mode": true
 		},
-		"elements": [
-		  {
-			"tag": "div",
-			"text": {
-			  "content": "**commit信息**:%s\n**触发者**:%s\n**分支**:%s\n**Githash**:%s\n[仓库链接](%s)",
-			  "tag": "lark_md"
-			}
-		  }
-		],
 		"header": {
 		  "template": "turquoise",
 		  "title": {
 			"content": "%s",
 			"tag": "plain_text"
 		  }
+		},
+		"i18n_elements": {
+		  "zh_cn": [
+			{
+			  "tag": "div",
+			  "text": {
+				"content": "**commit信息**:%s\n**触发者**:%s\n**分支**:%s\n**Githash**:%s\n[仓库链接](%s)",
+				"tag": "lark_md"
+			  }
+			}
+		  ]
 		}
 	  }
-	`, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl, plugin_title)
+	`, plugin_title, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl)
 
 	var jsonStr = []byte(requestBody)
 
