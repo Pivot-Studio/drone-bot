@@ -120,6 +120,8 @@ func PostString2bot(bot_hook string) string {
 
 	requestBody := fmt.Sprintf(`
 	{
+	"msg_type": "interactive",
+    "card":{
 		"config": {
 		  "wide_screen_mode": true
 		},
@@ -142,6 +144,7 @@ func PostString2bot(bot_hook string) string {
 		  ]
 		}
 	  }
+	}
 	`, plugin_title, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl)
 
 	var jsonStr = []byte(requestBody)
