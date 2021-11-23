@@ -11,6 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	plugin_title   string
+	plugin_repourl string
+	plugin_author  string
+	plugin_branch  string
+	plugin_message string
+	plugin_githash string
+)
+
 type Message struct {
 	Repourl string `json:"repourl"`
 	Bothook string `json:"bothook"`
@@ -19,9 +28,9 @@ type Message struct {
 type PluginMessage struct {
 	Title   string `json:"title"`
 	Repourl string `json:"repourl"`
-	Author  string `json:"author"`
+	Author  string `json:"plugin_author"`
 	Branch  string `json:"branch"`
-	Message string `json:"message"`
+	Message string `json:"plugin_message"`
 	Githash string `json:"githash"`
 }
 
@@ -34,23 +43,23 @@ func init() {
 }
 
 func RepoPutHandler(ctx *gin.Context) {
-	message := Message{}
-	if err := ctx.ShouldBindJSON(&message); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	plugin_message := Message{}
+	if err := ctx.ShouldBindJSON(&plugin_message); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"plugin_message": err.Error()})
 		return
 	}
 	// check url valid
-	if !(strings.Index(message.Repourl, "https://") == 0 &&
-		strings.Index(message.Bothook, "https://") == 0) {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "invalid url"})
+	if !(strings.Index(plugin_message.Repourl, "https://") == 0 &&
+		strings.Index(plugin_message.Bothook, "https://") == 0) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"plugin_message": "invalid url"})
 		return
 	}
 
-	client.Put(message.Repourl, message.Bothook)
+	client.Put(plugin_message.Repourl, plugin_message.Bothook)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"repourl": message.Repourl,
-		"bothook": message.Bothook,
+		"repourl": plugin_message.Repourl,
+		"bothook": plugin_message.Bothook,
 	})
 
 }
@@ -76,39 +85,38 @@ func RepoDeleteHandler(ctx *gin.Context) {
 }
 
 func PluginHandler(ctx *gin.Context) {
-	plugin_message := PluginMessage{}
-	if err := ctx.ShouldBindJSON(&plugin_message); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	plugin_messages := PluginMessage{}
+	if err := ctx.ShouldBindJSON(&plugin_messages); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"plugin_message": err.Error()})
 		return
 	}
 
-	bot_hook := client.Get(plugin_message.Repourl)
+	bot_hook := client.Get(plugin_messages.Repourl)
 
 	if bot_hook == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "cannot find repourl-bot_hook"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"plugin_message": "cannot find repourl-bot_hook"})
 		return
 	}
+	plugin_message = plugin_messages.Message
+	plugin_author = plugin_messages.Author
+	plugin_branch = plugin_messages.Branch
+	plugin_title = plugin_messages.Title
+	plugin_githash = plugin_messages.Githash
+	plugin_repourl = plugin_messages.Repourl
 
-	if post_err := PostString2bot(
-		plugin_message.Repourl, // FIXME too many arguments
-		plugin_message.Message,
-		bot_hook,
-		plugin_message.Author,
-		plugin_message.Branch,
-		plugin_message.Githash,
-		plugin_message.Title); post_err != "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "send request to bot error:" + post_err})
+	if post_err := PostString2bot(bot_hook); post_err != "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"plugin_message": "send request to bot error:" + post_err})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"repourl_applied": plugin_message.Repourl, // don't use "-" in name, use "_" instead. search snake case for details
+		"repourl_applied": plugin_messages.Repourl, // don't use "-" in name, use "_" instead. search snake case for details
 		"bothook_get":     bot_hook,
-		"message_send":    plugin_message.Message,
+		"message_send":    plugin_messages.Message,
 	})
 }
 
-func PostString2bot(repourl string, message string, bot_hook string, author string, branch string, githash string, title string) string {
+func PostString2bot(bot_hook string) string {
 
 	requestBody := fmt.Sprintf(`
 		{
@@ -144,7 +152,7 @@ func PostString2bot(repourl string, message string, bot_hook string, author stri
 				}
 			}
 		}
-	`, title, message, author, branch, githash, repourl)
+	`, plugin_title, plugin_message, plugin_author, plugin_branch, plugin_githash, plugin_repourl)
 
 	var jsonStr = []byte(requestBody)
 
