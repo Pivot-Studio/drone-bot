@@ -28,9 +28,9 @@ type Message struct {
 type PluginMessage struct {
 	Title   string `json:"title"`
 	Repourl string `json:"repourl"`
-	Author  string `json:"plugin_author"`
+	Author  string `json:"author"`
 	Branch  string `json:"branch"`
-	Message string `json:"plugin_message"`
+	Message string `json:"message"`
 	Githash string `json:"githash"`
 }
 
