@@ -140,7 +140,7 @@ func PostString2bot(bot_hook string) string {
 			{
 			  "tag": "div",
 			  "text": {
-				"content": "**commit信息**:%s\n**失败步骤**:%s,**触发者**:%s\n**分支**:%s\n**Githash**:%s\n[仓库链接](%s)",
+				"content": "**commit信息**:%s\n**失败步骤**:%s\n**触发者**:%s\n**分支**:%s\n**Githash**:%s\n[仓库链接](%s)",
 				"tag": "lark_md"
 			  }
 			}
