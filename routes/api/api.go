@@ -15,21 +15,22 @@ import (
 )
 
 type Message struct {
-	Repourl  string `form:"repourl" binding:"required"`
-	Bot_hook string `form:"bot_hook" binding:"required"`
+	Repourl  string `json:"repourl"`
+	Bothook string `json:"bothook"`
 }
 
 type PluginMessage struct {
-	Repourl string `form:"repourl" binding:"required"`
-	Author  string `form:"author" binding:"required"`
-	Branch  string `form:"branch" binding:"required"`
-	Message string `form:"message" binding:"required"`
-	Githash string `form:"githash" binding:"required"`
+	Title string `json:"title"`
+	Repourl string `json:"repourl"`
+	Author  string `json:"author"`
+	Branch  string `json:"branch"`
+	Message string `json:"message"`
+	Githash string `json:"githash"`
 }
 
 func RepoPutHandler(ctx *gin.Context) {
 	message := Message{}
-	if err := ctx.ShouldBind(&message); err != nil {
+	if err := ctx.ShouldBindJson(&message); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -46,13 +47,13 @@ func RepoPutHandler(ctx *gin.Context) {
 	for ; client.Get(strconv.Itoa(id)) != ""; id = Rand() {
 
 	}
-	client.Put(message.Repourl, message.Bot_hook)
+	client.Put(message.Repourl, message.Bothook)
 	client.Put(strconv.Itoa(id), message.Repourl)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"id":       id,
 		"repourl":  message.Repourl,
-		"bot_hook": message.Bot_hook,
+		"bothook": message.Bothook,
 	})
 
 	return
@@ -90,14 +91,14 @@ func RepoDeleteHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"id":       id,
 		"repourl":  repourl,
-		"bot_hook": bot_hook,
+		"bothook": bot_hook,
 	})
 	return
 }
 
 func PluginHandler(ctx *gin.Context) {
 	plugin_message := PluginMessage{}
-	if err := ctx.ShouldBind(&plugin_message); err != nil {
+	if err := ctx.ShouldBindJson(&plugin_message); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -113,20 +114,20 @@ func PluginHandler(ctx *gin.Context) {
 		return
 	}
 
-	if post_err := PostString2bot(plugin_message.Repourl, plugin_message.Message, bot_hook, plugin_message.Author, plugin_message.Branch, plugin_message.Githash); post_err != "" {
+	if post_err := PostString2bot(plugin_message.Repourl, plugin_message.Message, bot_hook, plugin_message.Author, plugin_message.Branch, plugin_message.Githash, plugin_message.Title); post_err != "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "send request to bot error:" + post_err})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"repourl-applied": plugin_message.Repourl,
-		"bot_hook-get":    bot_hook,
+		"bothook-get":    bot_hook,
 		"message-send":    plugin_message.Message,
 	})
 	return
 }
 
-func PostString2bot(repourl string, message string, bot_hook string, author string, branch string, githash string) string {
+func PostString2bot(repourl string, message string, bot_hook string, author string, branch string, githash string, title string) string {
 
 	requestBody := fmt.Sprintf(`
 		{
@@ -134,19 +135,23 @@ func PostString2bot(repourl string, message string, bot_hook string, author stri
 			"content": {
 				"post": {
 					"zh_cn": {
-						"title": "新的commit信息",
+						"title": "%s",
 						"content": [
 							[{
 									"tag": "text",
-									"text": "commit author: %s "
+									"text": "commit信息: %s "
 							}],
 							[{
 									"tag": "text",
-									"text": "commit branch: %s "
+									"text": "触发者: %s "
 							}],
 							[{
 									"tag": "text",
-									"text": "commit githash: %s "
+									"text": "分支: %s "
+							}],
+							[{
+									"tag": "text",
+									"text": "Githash: %s "
 							}],
 							[{
 									"tag": "a",
@@ -158,7 +163,7 @@ func PostString2bot(repourl string, message string, bot_hook string, author stri
 				}
 			}
 		}
-	`, author, branch, githash, repourl)
+	`, title, message, author, branch, githash, repourl)
 
 	var jsonStr = []byte(requestBody)
 
