@@ -16,38 +16,36 @@
 返回
 ```json
 {
-    "id": 0,
     "repourl": "string",
     "bot_hook": "string",
 }
 ```
-id为随机分配的100以内未使用的数字
 
 ### get repo
 
 - http method: get
-- path: /api/repo/{id}
+- path: /api/repo
+- query参数：repo
 
 返回参数：
 ```json
     {
         "repourl": "string",
         "bot_hook": "string",
-        "id": 0,
     }
 ```
 
 ### delete repo
 删除某仓库的bot设定
 - http method: delete
-- path: /api/repo/{id}
+- path: /api/repo/
+- query参数：repo
 
 返回参数：
 ```json
     {
         "repourl": "string",
         "bot_hook": "string",
-        "id": 0,
     }
 ```
 

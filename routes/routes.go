@@ -2,6 +2,7 @@ package routes
 
 import (
 	"drone-bot/routes/api"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,8 +12,8 @@ func UseDronebotRouter(r *gin.Engine) {
 		botrepo := botapi.Group("/repo")
 		{
 			botrepo.PUT("", api.RepoPutHandler)
-			botrepo.GET("/:ID", api.RepoGetHandler)
-			botrepo.DELETE("/:ID", api.RepoDeleteHandler)
+			botrepo.GET("", api.RepoGetHandler)
+			botrepo.DELETE("", api.RepoDeleteHandler)
 		}
 		botapi.POST("/bot", api.PluginHandler)
 	}
